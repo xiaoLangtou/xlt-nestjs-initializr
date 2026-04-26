@@ -1,0 +1,39 @@
+{
+  "name": "@nestjs-initializr/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.ts,.tsx",
+    "test": "vitest --run",
+    "test:pbt": "vitest --run --testPathPattern=pbt",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
+    "@nestjs-initializr/generator": "workspace:*",
+    "axios": "^1.9.0",
+    "element-plus": "^2.9.8",
+    "fflate": "^0.8.2",
+    "pinia": "^3.0.2",
+    "shiki": "^4.0.2",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.7",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "@vue/test-utils": "^2.4.6",
+    "fast-check": "^4.1.1",
+    "jsdom": "^26.1.0",
+    "tailwindcss": "^4.1.7",
+    "typescript": "^5.8.3",
+    "unplugin-auto-import": "^19.2.0",
+    "unplugin-vue-components": "^28.5.0",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.1",
+    "vue-tsc": "^2.2.10"
+  }
+}

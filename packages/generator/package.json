@@ -1,0 +1,50 @@
+{
+  "name": "@nestjs-initializr/generator",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "import": "./dist/browser.js",
+      "default": "./dist/browser.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      ".": ["./dist/index.d.ts"],
+      "browser": ["./dist/browser.d.ts"]
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "eslint \"src/**/*.ts\"",
+    "test": "vitest --run",
+    "test:pbt": "vitest --run --testPathPattern=pbt",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "handlebars": "^4.7.8",
+    "memfs": "^4.17.1",
+    "ts-morph": "^25.0.0",
+    "archiver": "^7.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "tsup": "^8.5.0",
+    "vitest": "^3.2.1",
+    "fast-check": "^4.1.1",
+    "@types/archiver": "^6.0.3",
+    "adm-zip": "^0.5.16",
+    "@types/adm-zip": "^0.5.7"
+  }
+}

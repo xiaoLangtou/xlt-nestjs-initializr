@@ -1,0 +1,22 @@
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+{{#if isExpress}}
+import type { NestExpressApplication } from '@nestjs/platform-express';
+{{/if}}
+{{#if isFastify}}
+import { FastifyAdapter, type NestFastifyApplication } from '@nestjs/platform-fastify';
+{{/if}}
+
+async function bootstrap() {
+{{#if isExpress}}
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+{{/if}}
+{{#if isFastify}}
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter(),
+  );
+{{/if}}
+  await app.listen(3000);
+}
+bootstrap();
