@@ -145,3 +145,29 @@ export function getFileIcon(name: string): { char: string; cls: string } {
   if (name.endsWith('.graphql')) return { char: '◇', cls: 'ts' };
   return { char: '◦', cls: 'file' };
 }
+
+/** el-tree 节点格式 */
+export interface ElTreeNode {
+  id: string;       // 完整路径，文件唯一标识
+  label: string;    // 显示名称
+  isDir: boolean;
+  source?: string;
+  children?: ElTreeNode[];
+}
+
+/** 将 TreeNode 转换为 el-tree 所需的节点数组 */
+export function buildElTree(root: TreeNode, parentPath = ''): ElTreeNode[] {
+  return root.children.map((node) => {
+    const fullPath = parentPath ? `${parentPath}/${node.name}` : node.name;
+    const elNode: ElTreeNode = {
+      id: fullPath,
+      label: node.name,
+      isDir: node.isDir,
+      source: node.source,
+    };
+    if (node.isDir && node.children.length > 0) {
+      elNode.children = buildElTree(node, fullPath);
+    }
+    return elNode;
+  });
+}

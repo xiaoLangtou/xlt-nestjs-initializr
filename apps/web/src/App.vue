@@ -5,11 +5,15 @@ import BasicConfig from '@/components/BasicConfig.vue';
 import QualityConfig from '@/components/QualityConfig.vue';
 import ModuleSelector from '@/components/ModuleSelector.vue';
 import CodeExplorer from '@/components/CodeExplorer.vue';
+import FileTreePreview from '@/components/FileTreePreview.vue';
 import SummaryCard from '@/components/SummaryCard.vue';
 import GenerateButton from '@/components/GenerateButton.vue';
 import ToastView from '@/components/ToastView.vue';
 import { useProjectConfigStore } from '@/stores/projectConfig';
+import { ElConfigProvider } from 'element-plus'
 
+const zIndex = 3000
+const size = 'small'
 const store = useProjectConfigStore();
 
 onMounted(() => {
@@ -18,7 +22,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <AppHeader />
+   <el-config-provider :size="size" :z-index="zIndex">
+    <AppHeader />
 
   <div class="main-wrap">
     <div class="page-title">
@@ -35,11 +40,14 @@ onMounted(() => {
 
       <div class="sidebar">
         <SummaryCard />
-        <CodeExplorer />
+        <FileTreePreview />
         <GenerateButton />
       </div>
     </div>
   </div>
 
   <ToastView />
+  <CodeExplorer />
+  </el-config-provider>
+  
 </template>

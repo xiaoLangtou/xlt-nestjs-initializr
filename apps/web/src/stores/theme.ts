@@ -14,6 +14,12 @@ function readInitialTheme(): ThemeMode {
 
 function applyTheme(mode: ThemeMode): void {
   document.documentElement.dataset.theme = mode;
+  // Element Plus 暗黑模式需要 html.dark class
+  if (mode === 'dark') {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
 }
 
 export const useThemeStore = defineStore('theme', () => {

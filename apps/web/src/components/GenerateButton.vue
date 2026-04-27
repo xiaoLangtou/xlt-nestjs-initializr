@@ -4,10 +4,28 @@ import { onMounted, onUnmounted, ref } from 'vue';
 import { useProjectConfigStore } from '@/stores/projectConfig';
 import { validateProjectName } from '@/utils/validate';
 import { showToast } from '@/utils/toast';
+import { useCodePreview } from '@/composables/useCodePreview';
 import type { ApiErrorResponse } from '@nestjs-initializr/generator';
 
 const store = useProjectConfigStore();
+const { drawerOpen, openFile } = useCodePreview();
 const loading = ref(false);
+const previewing = ref(false);
+
+async function handlePreview() {
+  if (previewing.value) return;
+  if (!validateProjectName(store.state.name)) {
+    showToast('请检查项目名称是否合法', 'error');
+    return;
+  }
+  previewing.value = true;
+  try {
+    drawerOpen.value = true;
+    await openFile('src/main.ts');
+  } finally {
+    previewing.value = false;
+  }
+}
 
 async function generate() {
   if (loading.value) return;
@@ -80,6 +98,26 @@ onUnmounted(() => document.removeEventListener('keydown', handleKey));
 
 <template>
   <div class="generate-section">
+    <button
+      class="generate-btn preview-btn"
+      :class="{ loading: previewing }"
+      :disabled="previewing"
+      @click="handlePreview"
+    >
+      <span class="btn-text">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+        预览代码
+      </span>
+      <span class="btn-spinner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+          <path d="M12 2v4m0 12v4m-7.07-3.93l2.83-2.83m8.48-8.48l2.83-2.83M2 12h4m12 0h4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83" />
+        </svg>
+      </span>
+    </button>
+
     <button
       class="generate-btn"
       :class="{ loading }"

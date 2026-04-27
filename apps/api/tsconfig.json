@@ -13,6 +13,9 @@
     "incremental": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    "paths": {
+      "@nestjs-initializr/generator": ["../../packages/generator"]
+    },
     "skipLibCheck": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,

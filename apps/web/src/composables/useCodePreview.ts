@@ -11,13 +11,14 @@ const error = ref<string | null>(null);
 const activeFile = ref<string | null>(null);
 /** 当前展示的文件内容 */
 const activeContent = ref<string | null>(null);
+/** 抽屉是否打开 */
+const drawerOpen = ref(false);
 /** 缓存是否有效（配置变更后置为 false） */
 let cacheValid = false;
 
 export function useCodePreview() {
   const store = useProjectConfigStore();
 
-  /** 配置变更时使缓存失效 */
   function invalidateCache() {
     cacheValid = false;
     fileCache.value = new Map();
@@ -25,7 +26,6 @@ export function useCodePreview() {
     activeFile.value = null;
   }
 
-  /** 调用后端生成接口，解压 ZIP，填充缓存 */
   async function fetchAndCache(): Promise<void> {
     if (cacheValid) return;
     loading.value = true;
@@ -38,7 +38,6 @@ export function useCodePreview() {
       const unzipped = unzipSync(data);
       const map = new Map<string, string>();
       for (const [fullPath, bytes] of Object.entries(unzipped)) {
-        // 去掉 ZIP 根目录前缀（如 "my-app/src/main.ts" → "src/main.ts"）
         const parts = fullPath.split('/');
         const relativePath = parts.slice(1).join('/');
         if (relativePath) {
@@ -54,14 +53,22 @@ export function useCodePreview() {
     }
   }
 
-  /** 点击文件时调用 */
+  /** 点击文件时调用：先设置 activeFile 触发"渲染中"状态，再异步加载内容 */
   async function openFile(path: string): Promise<void> {
-    await fetchAndCache();
+    // 立即设置 activeFile，让 UI 显示"渲染中"
     activeFile.value = path;
-    activeContent.value = fileCache.value.get(path) ?? null;
+    activeContent.value = null;
+
+    await fetchAndCache();
+
+    // fetchAndCache 完成后再设置内容（此时 activeFile 可能已切换，需校验）
+    if (activeFile.value === path) {
+      activeContent.value = fileCache.value.get(path) ?? null;
+    }
   }
 
   function closePreview() {
+    drawerOpen.value = false;
     activeFile.value = null;
     activeContent.value = null;
   }
@@ -71,6 +78,7 @@ export function useCodePreview() {
     error,
     activeFile,
     activeContent,
+    drawerOpen,
     fileCache,
     openFile,
     closePreview,
