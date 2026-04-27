@@ -1,0 +1,11 @@
+node_modules
+**/node_modules
+**/dist
+**/.git
+.kiro
+.idea
+.vscode
+*.log
+原型图.html
+drawer.md
+project.md
