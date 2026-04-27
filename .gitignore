@@ -26,3 +26,4 @@ Thumbs.db
 
 build_and_push.sh
 docker-compose.prod.yml
+
