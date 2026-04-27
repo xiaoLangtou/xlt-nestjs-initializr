@@ -1,0 +1,25 @@
+# 生产环境部署文件：直接从华为云 SWR 拉取已构建好的镜像
+# 用法:
+#   1. 在服务器上 docker login swr.cn-north-4.myhuaweicloud.com
+#   2. TAG=1.0.0 docker compose -f docker-compose.prod.yml up -d
+#   3. 升级:   TAG=1.0.1 docker compose -f docker-compose.prod.yml up -d
+#   4. 停止:   docker compose -f docker-compose.prod.yml down
+
+services:
+  api:
+    image: swr.cn-north-4.myhuaweicloud.com/weipengcheng/xlt-initializr-api:${TAG:-latest}
+    container_name: xlt-initializr-api
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+  web:
+    image: swr.cn-north-4.myhuaweicloud.com/weipengcheng/xlt-initializr-web:${TAG:-latest}
+    container_name: xlt-initializr-web
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      - api
+    restart: unless-stopped

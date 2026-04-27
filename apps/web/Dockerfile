@@ -1,5 +1,8 @@
 # ---- Build Stage ----
-FROM node:20-alpine AS builder
+# 使用 daocloud 镜像加速，避免 docker.io 拉取超时
+ARG NODE_IMAGE=docker.m.daocloud.io/library/node:20-alpine
+ARG NGINX_IMAGE=docker.m.daocloud.io/library/nginx:alpine
+FROM ${NODE_IMAGE} AS builder
 RUN corepack enable && corepack prepare pnpm@10.15.1 --activate
 WORKDIR /app
 
@@ -22,7 +25,7 @@ RUN pnpm --filter @nestjs-initializr/generator build
 RUN pnpm --filter @nestjs-initializr/web build
 
 # ---- Production Stage ----
-FROM nginx:alpine
+FROM ${NGINX_IMAGE}
 COPY --from=builder /app/apps/web/dist /usr/share/nginx/html
 COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
