@@ -128,15 +128,18 @@ docker compose up -d --build
 
 ### 方式 B：从镜像仓库拉取（生产推荐）
 
-镜像托管在华为云 SWR，使用前先登录：
+镜像可推送到任意容器镜像仓库（GitHub Container Registry / Docker Hub / 阿里云 ACR / 华为云 SWR 等）。使用前先登录对应仓库：
 
 ```bash
-docker login swr.cn-north-4.myhuaweicloud.com
+docker login <你的镜像仓库地址>
+# 例如：docker login ghcr.io
 ```
 
-部署：
+部署（通过 `REGISTRY` 环境变量传入仓库路径）：
 
 ```bash
+export REGISTRY=ghcr.io/your-name   # 换成你自己的仓库路径
+
 # 启动（默认拉取 latest，宿主机端口 8080）
 docker compose -f docker-compose.prod.yml up -d
 
@@ -164,7 +167,9 @@ docker compose -f docker-compose.prod.yml down
 **启动**：
 
 ```bash
-DOMAIN=initializr.example.com TAG=1.0.0 \
+REGISTRY=ghcr.io/your-name \
+DOMAIN=initializr.example.com \
+TAG=1.0.0 \
   docker compose -f docker-compose.https.yml up -d
 ```
 
@@ -172,14 +177,10 @@ DOMAIN=initializr.example.com TAG=1.0.0 \
 
 ### 构建并推送镜像
 
-```bash
-./build_and_push.sh 1.0.0
-```
+参考 `build_and_push.sh`（本地脚本，未入仓）使用 `docker buildx` 构建 `linux/amd64` 镜像，并同时推送指定版本与 `latest` 两个 tag。产出镜像名：
 
-脚本会通过 `docker buildx` 构建 `linux/amd64` 镜像，并同时推送 `1.0.0` 与 `latest` 两个 tag 到 SWR：
-
-- `swr.cn-north-4.myhuaweicloud.com/weipengcheng/xlt-initializr-api`
-- `swr.cn-north-4.myhuaweicloud.com/weipengcheng/xlt-initializr-web`
+- `<REGISTRY>/xlt-initializr-api:<TAG>`
+- `<REGISTRY>/xlt-initializr-web:<TAG>`
 
 ---
 
