@@ -1,0 +1,29 @@
+# Caddy 反向代理配置
+# 通过 docker-compose.https.yml 启动时，DOMAIN 环境变量会被自动注入
+
+{$DOMAIN} {
+    # 安全相关 HTTP 头
+    header {
+        # HSTS：强制浏览器一年内只走 HTTPS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        # 防 XSS / 点击劫持
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # 移除暴露后端的头
+        -Server
+    }
+
+    # 全部流量交给 web 容器
+    # web 内置的 nginx 已处理静态资源 + /api/* 反代到 api:3000
+    reverse_proxy web:80
+
+    # 启用 gzip / zstd 压缩
+    encode zstd gzip
+
+    # 访问日志
+    log {
+        output stdout
+        format console
+    }
+}

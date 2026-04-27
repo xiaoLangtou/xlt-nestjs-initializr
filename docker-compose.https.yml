@@ -1,0 +1,91 @@
+# 生产环境 + 自动 HTTPS（Caddy 反代 + Let's Encrypt 自动证书）
+#
+# 前置条件:
+#   1. 已申请域名（如 initializr.example.com），并已将 A 记录解析到本服务器公网 IP
+#   2. 已开放服务器 80 / 443 端口（云厂商安全组 + 系统防火墙）
+#   3. 已在服务器登录镜像仓库（docker login <你的仓库地址>）
+#
+# 用法（REGISTRY 示例：ghcr.io/your-name 或其他容器镜像仓库路径）:
+#   REGISTRY=ghcr.io/your-name DOMAIN=initializr.example.com TAG=1.0.0 \
+#     docker compose -f docker-compose.https.yml up -d
+#
+# 升级:
+#   REGISTRY=ghcr.io/your-name DOMAIN=initializr.example.com TAG=1.0.1 \
+#     docker compose -f docker-compose.https.yml up -d
+#
+# 停止:
+#   docker compose -f docker-compose.https.yml down
+#
+# 说明:
+#   - Caddy 会自动向 Let's Encrypt 申请并续期证书，无需任何手工操作
+#   - 证书与缓存持久化到 caddy_data / caddy_config 卷，重启不会重新申请
+#   - web / api 容器不再直接暴露端口，全部走 Caddy 反代
+#   - 同时支持 HTTP→HTTPS 自动跳转
+
+services:
+  caddy:
+    image: docker.m.daocloud.io/library/caddy:2-alpine
+    container_name: xlt-initializr-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3
+    environment:
+      - DOMAIN=${DOMAIN:?请通过 DOMAIN 环境变量传入域名}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - api
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  api:
+    image: ${REGISTRY:?请通过 REGISTRY 环境变量传入镜像仓库路径}/xlt-initializr-api:${TAG:-latest}
+    container_name: xlt-initializr-api
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  web:
+    image: ${REGISTRY:?请通过 REGISTRY 环境变量传入镜像仓库路径}/xlt-initializr-web:${TAG:-latest}
+    container_name: xlt-initializr-web
+    expose:
+      - "80"
+    depends_on:
+      - api
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  caddy_data:
+  caddy_config:

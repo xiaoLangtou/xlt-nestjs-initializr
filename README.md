@@ -4,6 +4,24 @@
 
 把项目初始化时间从数小时缩短到数秒：可视化勾选 HTTP 适配器、包管理器、Lint 工具、测试框架、Docker、Swagger、i18n 等模块，一键生成并下载 ZIP。
 
+🔗 **在线体验**：<http://160.202.237.14:8080>
+
+---
+
+## 📸 预览
+
+**可视化配置面板**：勾选所需的技术栈和模块，右侧实时展示配置摘要与生成的文件树。
+
+<p align="center">
+  <img src="./docs/screenshots/screenshot-config.png" alt="配置面板" width="880" />
+</p>
+
+**代码在线预览**：下载前可直接查看每个文件的完整内容（带语法高亮）。
+
+<p align="center">
+  <img src="./docs/screenshots/screenshot-preview.png" alt="代码预览" width="880" />
+</p>
+
 ---
 
 ## ✨ 特性
@@ -133,6 +151,24 @@ docker compose -f docker-compose.prod.yml down
 ```
 
 > 默认前端暴露在宿主机 `8080`，可通过 `WEB_PORT` 环境变量自定义；若主机 80 端口空闲，可设 `WEB_PORT=80`。
+
+### 方式 C：自动 HTTPS（Caddy 反代 + Let's Encrypt）
+
+适合已绑定域名的生产部署，证书自动申请、自动续期，零运维。
+
+**前置条件**：
+
+1. 已申请域名并将 A 记录解析到本服务器公网 IP
+2. 服务器已开放 `80` / `443` 端口（云厂商安全组 + 系统防火墙）
+
+**启动**：
+
+```bash
+DOMAIN=initializr.example.com TAG=1.0.0 \
+  docker compose -f docker-compose.https.yml up -d
+```
+
+启动后访问 `https://initializr.example.com` 即可，HTTP 自动跳转 HTTPS。Caddy 还启用了 HSTS、X-Frame-Options、HTTP/3 与 zstd 压缩等增强配置。
 
 ### 构建并推送镜像
 
